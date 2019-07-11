@@ -223,8 +223,7 @@ class Blockchain(object):
 
         # Grab and verify the chains from all the nodes in our network
         for node in neighbours:
-            response = requests.post(f'http://{node}/block/new',
-                                     json=post_data)
+            response = requests.post(f'http://{node}/block/new', json=post_data)
 
             if response.status_code != 200:
                 # Error handling
@@ -250,11 +249,13 @@ def mine():
     values = request.get_json()
     submitted_proof = values.get('proof')
 
+    id = values.get('id')
+
     if blockchain.valid_proof(last_proof, submitted_proof):
         # We must receive a reward for finding the proof.
         # The sender is "0" to signify that this node has mine a new coin
         blockchain.new_transaction(
-            sender="0",
+            sender=id,
             recipient=node_identifier,
             amount=1,
         )
@@ -328,9 +329,7 @@ def new_transaction():
         return 'Missing Values', 400
 
     # Create a new Transaction
-    index = blockchain.new_transaction(values['sender'],
-                                       values['recipient'],
-                                       values['amount'])
+    index = blockchain.new_transaction(values['sender'], values['recipient'], values['amount'])
 
     response = {'message': f'Transaction will be added to Block {index}'}
     return jsonify(response), 201

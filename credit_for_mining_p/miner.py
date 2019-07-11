@@ -1,5 +1,7 @@
 import hashlib
 import requests
+import uuid
+import os.path
 
 import sys
 
@@ -46,7 +48,20 @@ if __name__ == '__main__':
         data = r.json()
         new_proof = proof_of_work(data.get('proof'))
 
-        post_data = {"proof": new_proof}
+        new_id = 0
+
+        if os.path.exists("my_id.txt"):
+            f = open("my_id.txt", "r")
+            new_id = f.read()
+            f.close()
+
+        else:
+            f = open("my_id.txt", "w+")
+            f.write(uuid.uuid4().hex)
+            new_id = f.read()
+            f.close()
+
+        post_data = {"proof": new_proof, "id": new_id}
 
         r = requests.post(url=node + "/mine", json=post_data)
         data = r.json()
